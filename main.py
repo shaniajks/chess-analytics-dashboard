@@ -1,1 +1,33 @@
-print("Chess Analytics Dashboard")
+import requests
+
+username = "triniqueen868"
+headers = {"User-Agent": "chess-analytics-dashboard/1.0"}
+
+# Get player info
+response = requests.get(f"https://api.chess.com/pub/player/{username}", headers=headers)
+data = response.json()
+
+print(f"Username: {data['username']}")
+print(f"Status: {data['status']}")
+print(f"Followers: {data['followers']}")
+
+# Get recent games
+games_response = requests.get(f"https://api.chess.com/pub/player/{username}/games/archives", headers=headers)
+games_data = games_response.json()
+
+print(f"\nGame archives available: {len(games_data['archives'])}")
+print("Most recent archive:", games_data['archives'][-1])
+
+# Get most recent month of games
+recent_games_response = requests.get(games_data['archives'][-1], headers=headers)
+recent_games = recent_games_response.json()
+
+print(f"\nGames played this month: {len(recent_games['games'])}")
+
+# Look at the first game
+first_game = recent_games['games'][0]
+print(f"\nFirst game details:")
+print(f"White: {first_game['white']['username']}")
+print(f"Black: {first_game['black']['username']}")
+print(f"Result: {first_game['white']['result']}")
+print(f"Time class: {first_game['time_class']}")
