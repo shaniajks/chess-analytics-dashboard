@@ -1,6 +1,6 @@
 import requests
 
-username = "triniqueen868"
+username = "ChapamanS"
 headers = {"User-Agent": "chess-analytics-dashboard/1.0"}
 
 # Get player info
@@ -23,6 +23,19 @@ recent_games_response = requests.get(games_data['archives'][-1], headers=headers
 recent_games = recent_games_response.json()
 
 print(f"\nGames played this month: {len(recent_games['games'])}")
+
+
+# Total games played
+all_games = [] #empty list to store all games played 
+
+for games in games_data['archives']:
+    recent_games_response = requests.get(games, headers=headers ) #gets data from the games url
+    recent_games = recent_games_response.json()
+
+    all_games.extend(recent_games['games']) #adds list of games onto list
+
+print(f"\nAll the games played since joining: {len(all_games)}")
+
 
 # Look at the first game
 first_game = recent_games['games'][0]
