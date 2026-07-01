@@ -1,11 +1,12 @@
 import requests
 
-username = "ChapamanS"
+username = "PhirstBlood"
 headers = {"User-Agent": "chess-analytics-dashboard/1.0"}
 
 # Get player info
 response = requests.get(f"https://api.chess.com/pub/player/{username}", headers=headers)
 data = response.json()
+#print(response.status_code)
 
 print(f"Username: {data['username']}")
 print(f"Status: {data['status']}")
@@ -23,7 +24,6 @@ recent_games_response = requests.get(games_data['archives'][-1], headers=headers
 recent_games = recent_games_response.json()
 
 print(f"\nGames played this month: {len(recent_games['games'])}")
-
 
 # Total games played
 all_games = [] #empty list to store all games played 
@@ -44,3 +44,39 @@ print(f"White: {first_game['white']['username']}")
 print(f"Black: {first_game['black']['username']}")
 print(f"Result: {first_game['white']['result']}")
 print(f"Time class: {first_game['time_class']}")
+
+#Look at the last game
+first_game = recent_games['games'][-1]
+print(f"\nLast game details:")
+print(f"White: {first_game['white']['username']}")
+print(f"Black: {first_game['black']['username']}")
+print(f"Result: {first_game['white']['result']}")
+print(f"Time class: {first_game['time_class']}")
+
+
+#Check for wins losses and draws
+win = 0
+loss = 0
+draw = 0
+
+for games in all_games:
+    if games['white']['username'] == username: #checks if username matches and gives the color played
+        if games['white']['result'] == "win":
+            win +=1
+        elif games['white']['result'] =="agreed" or games['white']['result'] =="stalemate" or games['white']['result'] =="repetition":
+            draw +=1
+        else:
+            loss +=1
+    else:
+            if games['black']['result'] == "win":
+                win +=1
+            elif games['black']['result'] =="agreed" or games['black']['result'] =="stalemate" or games['black']['result'] =="repetition":
+                draw +=1
+            else:
+                loss +=1
+
+print(f"\nWins: {win}")
+print(f"Losses: {loss}")
+print(f"Draws: {draw}")
+
+
