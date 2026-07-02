@@ -59,17 +59,27 @@ win = 0
 loss = 0
 draw = 0
 
+b_win = 0
+w_win = 0
+
+w_games=0
+b_games=0
+
 for games in all_games:
     if games['white']['username'] == username: #checks if username matches and gives the color played
+        w_games +=1
         if games['white']['result'] == "win":
             win +=1
+            w_win +=1
         elif games['white']['result'] =="agreed" or games['white']['result'] =="stalemate" or games['white']['result'] =="repetition":
             draw +=1
         else:
             loss +=1
     else:
+            b_games +=1
             if games['black']['result'] == "win":
                 win +=1
+                b_win +=1
             elif games['black']['result'] =="agreed" or games['black']['result'] =="stalemate" or games['black']['result'] =="repetition":
                 draw +=1
             else:
@@ -79,4 +89,9 @@ print(f"\nWins: {win}")
 print(f"Losses: {loss}")
 print(f"Draws: {draw}")
 
+print(f"Total White games: {w_games} Wins as White: {w_win}")
+print(f"Win rate as White: {w_win/w_games*100:.2f}%")
+
+print(f"Total black games {b_games} Wins as Black: {b_win}")
+print(f"Win rate as Black: {b_win/b_games*100:.2f}%")
 
