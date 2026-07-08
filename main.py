@@ -95,3 +95,25 @@ print(f"Win rate as White: {w_win/w_games*100:.2f}%")
 print(f"Total black games {b_games} Wins as Black: {b_win}")
 print(f"Win rate as Black: {b_win/b_games*100:.2f}%")
 
+
+#Game Type Tracker & Analysis
+game_type = {
+    "rapid": 0,
+    "blitz": 0,
+    "bullet": 0,
+    "daily": 0
+}
+
+
+for games in all_games:
+    if games['time_class'] == 'rapid':
+        game_type['rapid'] += 1
+    elif games['time_class'] == 'blitz':
+        game_type['blitz'] += 1
+    elif games['time_class'] == 'bullet':
+        game_type['bullet'] += 1
+    else:
+        game_type['daily'] += 1    
+
+print()
+print(f"The most played game type is {max(game_type, key=game_type.get)}")
