@@ -186,13 +186,26 @@ y_pred = model.predict(x_test)
 model_accuracy = accuracy_score(y_test, y_pred)
 print(f"\nModel Accuracy: {model_accuracy*100:.2f}%")
 
+
+
 #Predict outcome given rating difference
-opp_rating = int(input("\nEnter opponent's rating to predict outcome: "))
-player_rating = int(input("Enter player's rating: "))
+#Get player most recent rating
+for game in reversed(all_games):
+    if game['white']['username'].lower() == username.lower():
+        player_rating = game['white']['rating']
+        break
+    elif game['black']['username'].lower() == username.lower():
+        player_rating = game['black']['rating']
+        break
+
+print(f"\n{username}'s current rating: {player_rating}")
+
+opp_rating = int(input(f"\nEnter your rating to see if you would beat {username}: "))
 diff = np.array([[player_rating - opp_rating]])
 prediction = model.predict(diff)
 
 if prediction[0] == 1:
-    print("The model predicts: WIN")
+    print(f"Prediction: {username} will win!")
 else:
-    print("The model predicts: LOSS")
+    print(f"Prediction: {username} will lose!")
+    
