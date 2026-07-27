@@ -1,6 +1,15 @@
 import requests
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
-username = "PhirstBlood"
+
+
+username = input("Enter a  Chess.com username (case sensitive): ")
 headers = {"User-Agent": "chess-analytics-dashboard/1.0"}
 
 # Get player info
@@ -34,8 +43,18 @@ for games in games_data['archives']:
 
     all_games.extend(recent_games['games']) #adds list of games onto list
 
-print(f"\nAll the games played since joining: {len(all_games)}")
+print(f"\nAll the games played since joining: {len(all_games)}\n")
 
+#Pandas Implementation
+df= pd.DataFrame(all_games)
+#print(df.head())
+#print(f"DataFrame shape: {df.shape}")
+#print(df.columns.tolist())
+#print(df['eco'].value_counts().head(10))
+
+df['opening_name'] = df['eco'].str.split('/openings/').str[-1].str.replace('-', ' ')
+print(f'The top 10 used chess openings for {username} are: ')
+print(df['opening_name'].value_counts().head(10))
 
 # Look at the first game
 first_game = recent_games['games'][0]
@@ -96,6 +115,24 @@ print(f"Total black games {b_games} Wins as Black: {b_win}")
 print(f"Win rate as Black: {b_win/b_games*100:.2f}%")
 
 
+#Matplotlib Implementation
+#Bar Chart of wins, losses and draws
+plt.figure()
+plt.bar(['Wins', 'Losses', 'Draws'], [win, loss, draw], color=['g','r', 'gray'])
+plt.title(f"{username}'s Win-Loss-Draw Record")
+plt.xlabel('Result')
+plt.ylabel('Number of Games')
+plt.savefig('win_loss_draw.png')
+plt.show()
+
+#Pie chart of winrate
+plt.figure()
+plt.pie([w_win, b_win], labels=['White Win Rate', 'Black Win Rate'], colors=['g', 'r'], autopct='%1.1f%%')
+plt.title(f"{username}'s White-Black Win Rate")
+plt.savefig('white_black_rate.png')
+plt.show()
+
+
 #Game Type Tracker & Analysis
 game_type = {
     "rapid": 0,
@@ -103,7 +140,6 @@ game_type = {
     "bullet": 0,
     "daily": 0
 }
-
 
 for games in all_games:
     if games['time_class'] == 'rapid':
@@ -115,5 +151,48 @@ for games in all_games:
     else:
         game_type['daily'] += 1    
 
+
+
 print()
 print(f"The most played game type is {max(game_type, key=game_type.get)}")
+print()
+
+#Winner Predictions
+#print(all_games[0]['white'])
+white_ratings = []
+black_ratings = []
+results = []
+
+for games in all_games:
+    if games['white']['username'].lower() == username.lower():
+        white_ratings.append(games['white']['rating'])
+        black_ratings.append(games['black']['rating'])
+        if games['white']['result'] == 'win':
+            results.append(1)
+        else:
+            results.append(0)
+
+rating_diff = np. array(white_ratings) - np.array(black_ratings)
+
+x = rating_diff.reshape(-1,1)
+y = np.array(results)
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 42)
+
+model = LogisticRegression()
+model.fit(x_train, y_train)
+
+y_pred = model.predict(x_test)
+model_accuracy = accuracy_score(y_test, y_pred)
+print(f"\nModel Accuracy: {model_accuracy*100:.2f}%")
+
+#Predict outcome given rating difference
+opp_rating = int(input("\nEnter opponent's rating to predict outcome: "))
+player_rating = int(input("Enter player's rating: "))
+diff = np.array([[player_rating - opp_rating]])
+prediction = model.predict(diff)
+
+if prediction[0] == 1:
+    print("The model predicts: WIN")
+else:
+    print("The model predicts: LOSS")
